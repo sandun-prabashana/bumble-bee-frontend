@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 // @mui
 import { styled, alpha } from '@mui/material/styles';
@@ -14,6 +14,7 @@ import Scrollbar from '../../../components/scrollbar';
 import NavSection from '../../../components/nav-section';
 //
 import navConfig from './config';
+import navConfig2 from './configAdmin';
 
 // ----------------------------------------------------------------------
 
@@ -39,12 +40,26 @@ export default function Nav({ openNav, onCloseNav }) {
 
   const isDesktop = useResponsive('up', 'lg');
 
+  const [fullName, setFullName] = useState('');
+
   useEffect(() => {
     if (openNav) {
       onCloseNav();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
+
+  useEffect(() => {
+    // replace this with the actual response handler or useEffect hook that receives the full name data
+    console.log(sessionStorage.getItem('fullName'));
+    const response = { data: { data: { userData: { username: sessionStorage.getItem('fullName') } } } };
+    setFullName(response.data.data.userData.username);
+    sessionStorage.setItem('fullName', fullName);
+  }, []);
+
+  console.log("usertype :"+sessionStorage.getItem('userType'))
+  const userType = sessionStorage.getItem('userType');
+  const navData = userType === '1' ? navConfig : navConfig2;
 
   const renderContent = (
     <Scrollbar
@@ -64,7 +79,7 @@ export default function Nav({ openNav, onCloseNav }) {
 
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                {account.displayName}
+                {fullName}
               </Typography>
 
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -75,8 +90,7 @@ export default function Nav({ openNav, onCloseNav }) {
         </Link>
       </Box>
 
-      <NavSection data={navConfig} />
-
+      <NavSection data={navData} />
 
     </Scrollbar>
   );
