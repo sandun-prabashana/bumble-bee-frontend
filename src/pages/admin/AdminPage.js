@@ -25,20 +25,23 @@ import {
   TablePagination,
 } from "@mui/material";
 // components
-import Label from "../components/label";
-import Iconify from "../components/iconify";
-import Scrollbar from "../components/scrollbar";
-import AddCategoryModal from "./AddCategoryModal";
-import EditCategoryModal from "./EditCategoryModal";
-// sections
-import { UserListHead, UserListToolbar } from "../sections/@dashboard/user";
+import Label from "../../components/label";
+import Iconify from "../../components/iconify";
+import Scrollbar from "../../components/scrollbar";
+// import AddProductModal from "./AddProductModal";
+// import EditProductModal from "./EditProductModal";
+import { UserListHead, UserListToolbar } from "../../sections/@dashboard/user";
+
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: "categoryId", label: "Category_ID", alignRight: false },
-  { id: "categoryName", label: "Category_Name", alignRight: false },
-  { id: "status", label: "status", alignRight: false },
+  { id: "adminId", label: "Admin_ID", alignRight: false },
+  { id: "adminName", label: "Admin_User_Name", alignRight: false },
+  { id: "fullName", label: "Full_Name", alignRight: false },
+  { id: "phonenumber", label: "Phone_Number", alignRight: false },
+  { id: "email", label: "Email", alignRight: false },
+  { id: "role", label: "Role", alignRight: false },
   { id: "" },
 ];
 
@@ -70,14 +73,14 @@ function applySortFilter(array, comparator, query) {
   if (query) {
     return filter(
       array,
-      (_user) =>
-        _user.categoryName.toLowerCase().indexOf(query.toLowerCase()) !== -1
+      (_admin) =>
+        _admin.userName.username.toLowerCase().indexOf(query.toLowerCase()) !== -1
     );
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function CategoryPage() {
+export default function AdminPage() {
   const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -86,22 +89,22 @@ export default function CategoryPage() {
 
   const [selected, setSelected] = useState([]);
 
-  const [orderBy, setOrderBy] = useState("categoryName");
+  const [orderBy, setOrderBy] = useState("productName");
 
   const [filterName, setFilterName] = useState("");
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [categoryData, setCategoryData] = useState([]);
+  const [adminData, setAdminData] = useState([]);
 
-  const [openAddCategory, setOpenAddCategory] = useState(false);
+  const [openAddAdmin, setOpenAddAdmin] = useState(false);
 
-  const [editCategory, setEditCategory] = useState(null);
+  const [editAdmin, setEditAdmin] = useState(null);
 
   const [openEditPopup, setOpenEditPopup] = useState(false);
 
-  const handleOpenMenu = (event, category) => {
-    setEditCategory(category);
+  const handleOpenMenu = (event, admin) => {
+    setEditAdmin(admin);
     setOpenEditPopup(true);
   };
 
@@ -110,33 +113,48 @@ export default function CategoryPage() {
     setOpenEditPopup(false);
   };
 
-  const handleOpenAddCategory = () => {
-    setOpenAddCategory(true);
+  const handleOpenAddAdmin = () => {
+    setOpenAddAdmin(true);
   };
 
-  const handleCloseAddCategory = () => {
-    setOpenAddCategory(false);
+  const handleCloseAddAdmin = () => {
+    setOpenAddAdmin(false);
   };
 
-  const handleAddCategory = (newCategory) => {
-    const token = sessionStorage.getItem("token");
-    const config = {
-      headers: { Authorization: `Bearer ${token}` },
-    };
-    console.log(newCategory);
-    const categoryDTO = {
-      categoryName: newCategory.categoryName, // stringify the newCategory parameter
-      status: "ACT", // set default status to "active"
-    };
-    axios
-      .post("http://localhost:8080/BB/api/v1/category", categoryDTO, config)
-      .then((response) => {
-        const category = response.data.data;
-        setCategoryData([...categoryData, category]);
-        setOpenAddCategory(false);
-      })
-      .catch((error) => console.error(error));
-  };
+  // const handleAddAdmin = (newAdmin) => {
+  //   const token = sessionStorage.getItem("token");
+  //   const config = {
+  //     headers: { Authorization: `Bearer ${token}` },
+  //   };
+  //   console.log(newProduct);
+
+  //   console.log(newProduct.productName);
+  //   console.log(newProduct.productDescription);
+  //   console.log(newProduct.price);
+  //   console.log(newProduct.category);
+  //   console.log(newProduct.brand);
+  //   console.log(newProduct.quantity);
+  //   const productDTO = {
+  //     productName: newProduct.productName,
+  //     productDescription: newProduct.productDescription,
+  //     price: newProduct.price,
+  //     category: {
+  //       categoryId: newProduct.category
+  //     },
+  //     brand: {
+  //       brandId: newProduct.brand
+  //     },
+  //     quantity: newProduct.quantity,
+  //   };
+  //   axios
+  //     .post("http://localhost:8080/BB/api/v1/product", productDTO, config)
+  //     .then((response) => {
+  //       const product = response.data.data;
+  //       setProductData([...productData, product]);
+  //       setOpenAddProduct(false);
+  //     })
+  //     .catch((error) => console.error(error));
+  // };
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
@@ -146,20 +164,12 @@ export default function CategoryPage() {
     };
 
     axios
-      .get("http://localhost:8080/BB/api/v1/category", config)
+      .get("http://localhost:8080/BB/api/v1/admin", config)
       .then((response) => {
-        setCategoryData(response.data.data);
+        setAdminData(response.data.data);
       })
       .catch((error) => console.error(error));
   }, []);
-
-  // const handleOpenMenu = (event) => {
-  //   setOpen(event.currentTarget);
-  // };
-
-  // const handleCloseMenu = () => {
-  //   setOpen(null);
-  // };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -168,11 +178,11 @@ export default function CategoryPage() {
     setOrderBy(property);
   };
 
-  const handleClick = (event, categoryId) => {
-    const selectedIndex = selected.indexOf(categoryId);
+  const handleClick = (event, adminId) => {
+    const selectedIndex = selected.indexOf(adminId);
     let newSelected = [];
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, categoryId);
+      newSelected = newSelected.concat(selected, adminId);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -201,10 +211,10 @@ export default function CategoryPage() {
   };
 
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - categoryData.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - adminData.length) : 0;
 
   const filteredCategories = applySortFilter(
-    categoryData,
+    adminData,
     getComparator(order, orderBy),
     filterName
   );
@@ -214,7 +224,7 @@ export default function CategoryPage() {
   return (
     <>
       <Helmet>
-        <title>Category</title>
+        <title>Admin</title>
       </Helmet>
       <Container>
         <Stack
@@ -224,14 +234,14 @@ export default function CategoryPage() {
           mb={5}
         >
           <Typography variant="h4" gutterBottom>
-            Category
+            Admin
           </Typography>
           <Button
             variant="contained"
             startIcon={<Iconify icon="eva:plus-fill" />}
-            onClick={handleOpenAddCategory}
+            onClick={handleOpenAddAdmin}
           >
-            New Category
+            New Admin
           </Button>
         </Stack>
         <Card>
@@ -241,52 +251,66 @@ export default function CategoryPage() {
             onFilterName={handleFilterByName}
           />
 
-          <Scrollbar>
+          <Scrollbar sx={{ height: "500px" }}>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
                 <UserListHead
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={categoryData.length}
+                  rowCount={adminData.length}
                 />
                 <TableBody>
                   {filteredCategories
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((category) => {
-                      const { categoryId, categoryName, status } = category;
-                      const selectedCategory =
-                        selected.indexOf(categoryId) !== -1;
+                    .map((admin) => {
+                      const {
+                        adminId,
+                        userName,
+                        phoneNumber,
+                        email,
+                        firstName,
+                        lastName,
+                      } = admin;
+                      const selectedAdmin =
+                        selected.indexOf(adminId) !== -1;
 
                       return (
                         <TableRow
                           hover
-                          key={categoryId}
+                          key={adminId}
                           tabIndex={-1}
                           role="checkbox"
-                          selected={selectedCategory}
+                          selected={selectedAdmin}
+                          // sx={{ backgroundColor: "lightgray" }}
                         >
                           <TableCell padding="checkbox">
                             <Checkbox
-                              checked={selectedCategory}
+                              checked={selectedAdmin}
                               onChange={(event) =>
-                                handleClick(event, categoryId)
+                                handleClick(event, adminId)
                               }
                             />
                           </TableCell>
 
-                          <TableCell align="left">{categoryId}</TableCell>
-
-                          <TableCell align="left">{categoryName}</TableCell>
+                          <TableCell align="left">{adminId}</TableCell>
+                          <TableCell align="left">{userName.username}</TableCell>
+                          <TableCell align="left">
+                            {firstName+" "+lastName}
+                          </TableCell>
+                          <TableCell align="left">
+                            {phoneNumber}
+                          </TableCell>
+                          <TableCell align="left">{email}</TableCell>
 
                           <TableCell align="left">
                             <TableCell align="left">
                               <Label
                                 color={
-                                  (status === "banned" && "error") || "success"
+                                  (userName.userrole.description === "banned" && "error") || "success"
                                 }
                               >
-                                {sentenceCase(status)}
+                                {sentenceCase(userName.userrole.description)}
                               </Label>
                             </TableCell>
                           </TableCell>
@@ -296,7 +320,7 @@ export default function CategoryPage() {
                               size="large"
                               color="inherit"
                               onClick={(event) =>
-                                handleOpenMenu(event, category)
+                                handleOpenMenu(event, admin)
                               }
                             >
                               <Iconify icon={"eva:edit-fill"} />
@@ -336,9 +360,9 @@ export default function CategoryPage() {
           </Scrollbar>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5]}
             component="div"
-            count={categoryData.length}
+            count={adminData.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -376,16 +400,16 @@ export default function CategoryPage() {
         </MenuItem>
       </Popover>
 
-      <AddCategoryModal
-        open={openAddCategory}
-        onClose={handleCloseAddCategory}
-        onAddCategory={handleAddCategory}
+      {/* <AddProductModal
+        open={openAddProduct}
+        onClose={handleCloseAddProduct}
+        onAddProduct={handleAddProduct}
       />
-      <EditCategoryModal
+      <EditProductModal
         open={openEditPopup}
         onClose={handleCloseMenu}
-        category={editCategory}
-      />
+        product={editProduct}
+      /> */}
     </>
   );
 }
