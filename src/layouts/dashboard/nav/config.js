@@ -23,7 +23,7 @@ const navConfig = [
   },
   {
     title: 'category',
-    path: '/superadmin/category',
+    path: '/admin/category',
     icon: icon('ic_user'),
   },
   {

@@ -3,6 +3,7 @@ import { filter } from "lodash";
 import { sentenceCase } from "change-case";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 // @mui
 import {
   Card,
@@ -27,6 +28,8 @@ import {
 import Label from "../components/label";
 import Iconify from "../components/iconify";
 import Scrollbar from "../components/scrollbar";
+import AddCategoryModal from "./AddCategoryModal";
+import EditCategoryModal from "./EditCategoryModal";
 // sections
 import { UserListHead, UserListToolbar } from "../sections/@dashboard/user";
 
@@ -90,7 +93,50 @@ export default function CategoryPage() {
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const [categoryData, setCategoryData] = useState([]);
-  
+
+  const [openAddCategory, setOpenAddCategory] = useState(false);
+
+  const [editCategory, setEditCategory] = useState(null);
+
+  const [openEditPopup, setOpenEditPopup] = useState(false);
+
+  const handleOpenMenu = (event, category) => {
+    setEditCategory(category);
+    setOpenEditPopup(true);
+  };
+
+  const handleCloseMenu = () => {
+    setOpen(null);
+    setOpenEditPopup(false);
+  };
+
+  const handleOpenAddCategory = () => {
+    setOpenAddCategory(true);
+  };
+
+  const handleCloseAddCategory = () => {
+    setOpenAddCategory(false);
+  };
+
+  const handleAddCategory = (newCategory) => {
+    const token = sessionStorage.getItem("token");
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+    console.log(newCategory);
+    const categoryDTO = {
+      categoryName: newCategory.categoryName, // stringify the newCategory parameter
+      status: "ACT", // set default status to "active"
+    };
+    axios
+      .post("http://localhost:8080/BB/api/v1/category", categoryDTO, config)
+      .then((response) => {
+        const category = response.data.data;
+        setCategoryData([...categoryData, category]);
+        setOpenAddCategory(false);
+      })
+      .catch((error) => console.error(error));
+  };
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
@@ -107,28 +153,20 @@ export default function CategoryPage() {
       .catch((error) => console.error(error));
   }, []);
 
-  const handleOpenMenu = (event) => {
-    setOpen(event.currentTarget);
-  };
+  // const handleOpenMenu = (event) => {
+  //   setOpen(event.currentTarget);
+  // };
 
-  const handleCloseMenu = () => {
-    setOpen(null);
-  };
+  // const handleCloseMenu = () => {
+  //   setOpen(null);
+  // };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
+
     setOrderBy(property);
   };
-
-  // const handleSelectAllClick = (event) => {
-  //   if (event.target.checked) {
-  //     const newSelecteds = categoryData.map((category) => category.categoryId);
-  //     setSelected
-  //     return;
-  //   }
-  //   setSelected([]);
-  // };
 
   const handleClick = (event, categoryId) => {
     const selectedIndex = selected.indexOf(categoryId);
@@ -191,11 +229,11 @@ export default function CategoryPage() {
           <Button
             variant="contained"
             startIcon={<Iconify icon="eva:plus-fill" />}
+            onClick={handleOpenAddCategory}
           >
             New Category
           </Button>
         </Stack>
-
         <Card>
           <UserListToolbar
             numSelected={selected.length}
@@ -211,7 +249,6 @@ export default function CategoryPage() {
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
                   rowCount={categoryData.length}
-                  // onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
                   {filteredCategories
@@ -255,13 +292,15 @@ export default function CategoryPage() {
                           </TableCell>
 
                           <TableCell align="right">
-                            <IconButton
+                            <Button
                               size="large"
                               color="inherit"
-                              onClick={handleOpenMenu}
+                              onClick={(event) =>
+                                handleOpenMenu(event, category)
+                              }
                             >
-                              <Iconify icon={"eva:more-vertical-fill"} />
-                            </IconButton>
+                              <Iconify icon={"eva:edit-fill"} />
+                            </Button>
                           </TableCell>
                         </TableRow>
                       );
@@ -272,7 +311,6 @@ export default function CategoryPage() {
                     </TableRow>
                   )}
                 </TableBody>
-
                 {isNotFound && (
                   <TableBody>
                     <TableRow>
@@ -337,6 +375,17 @@ export default function CategoryPage() {
           Delete
         </MenuItem>
       </Popover>
+
+      <AddCategoryModal
+        open={openAddCategory}
+        onClose={handleCloseAddCategory}
+        onAddCategory={handleAddCategory}
+      />
+      <EditCategoryModal
+        open={openEditPopup}
+        onClose={handleCloseMenu}
+        category={editCategory}
+      />
     </>
   );
 }

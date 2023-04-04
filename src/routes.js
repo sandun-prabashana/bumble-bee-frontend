@@ -10,6 +10,7 @@ import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 import WelcomePage from './pages/WelcomePage';
 import CustomerRegisterPage from './pages/CustomerRegisterPage';
+import CategoryPage from './pages/CategoryPage';
 
 // ----------------------------------------------------------------------
 
@@ -24,6 +25,7 @@ export default function Router() {
         { path: 'dashboard', element: <DashboardAppPage /> },
         { path: 'user', element: <UserPage /> },
         { path: 'products', element: <ProductsPage /> },
+        { path: 'category', element: <CategoryPage /> },
       ],
     },
        {
