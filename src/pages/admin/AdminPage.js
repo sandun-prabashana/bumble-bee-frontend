@@ -3,6 +3,7 @@ import { filter } from "lodash";
 import { sentenceCase } from "change-case";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
 // @mui
 import {
@@ -23,15 +24,16 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
+  CircularProgress,
 } from "@mui/material";
+
 // components
 import Label from "../../components/label";
 import Iconify from "../../components/iconify";
 import Scrollbar from "../../components/scrollbar";
-// import AddProductModal from "./AddProductModal";
+import AddAdminModal from "./AddAdminModal";
 // import EditProductModal from "./EditProductModal";
 import { UserListHead, UserListToolbar } from "../../sections/@dashboard/user";
-
 
 // ----------------------------------------------------------------------
 
@@ -74,13 +76,16 @@ function applySortFilter(array, comparator, query) {
     return filter(
       array,
       (_admin) =>
-        _admin.userName.username.toLowerCase().indexOf(query.toLowerCase()) !== -1
+        _admin.userName.username.toLowerCase().indexOf(query.toLowerCase()) !==
+        -1
     );
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
 export default function AdminPage() {
+  const [isLoading, setIsLoading] = useState(false);
+
   const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -119,6 +124,49 @@ export default function AdminPage() {
 
   const handleCloseAddAdmin = () => {
     setOpenAddAdmin(false);
+  };
+
+  const handleAddAdmin = (newAdmin) => {
+    setIsLoading(true);
+    const token = sessionStorage.getItem("token");
+    const config = {
+      headers: { Authorization: `Bearer ${token}` },
+    };
+
+    const adminDTO = {
+      firstName: newAdmin.firstName,
+      lastName: newAdmin.lastName,
+      phoneNumber: newAdmin.phoneNumber,
+      email: newAdmin.email,
+      userName: {
+        username: newAdmin.userName,
+      },
+    };
+    axios
+      .post("http://localhost:8080/BB/api/v1/admin", adminDTO, config)
+      .then((response) => {
+        const admin = response.data.data;
+        setAdminData([...adminData, admin]);
+        setOpenAddAdmin(false);
+        Swal.fire({
+          icon: "success",
+          title: "Register Success",
+          text: "Admin Register Success",
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+        const errorMessage =
+          error.response && error.response.data && error.response.data.data;
+        Swal.fire({
+          icon: "error",
+          title: "Register Failed",
+          text: errorMessage || "Admin Registration Failed",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   // const handleAddAdmin = (newAdmin) => {
@@ -272,8 +320,7 @@ export default function AdminPage() {
                         firstName,
                         lastName,
                       } = admin;
-                      const selectedAdmin =
-                        selected.indexOf(adminId) !== -1;
+                      const selectedAdmin = selected.indexOf(adminId) !== -1;
 
                       return (
                         <TableRow
@@ -287,27 +334,27 @@ export default function AdminPage() {
                           <TableCell padding="checkbox">
                             <Checkbox
                               checked={selectedAdmin}
-                              onChange={(event) =>
-                                handleClick(event, adminId)
-                              }
+                              onChange={(event) => handleClick(event, adminId)}
                             />
                           </TableCell>
 
                           <TableCell align="left">{adminId}</TableCell>
-                          <TableCell align="left">{userName.username}</TableCell>
                           <TableCell align="left">
-                            {firstName+" "+lastName}
+                            {userName.username}
                           </TableCell>
                           <TableCell align="left">
-                            {phoneNumber}
+                            {firstName + " " + lastName}
                           </TableCell>
+                          <TableCell align="left">{phoneNumber}</TableCell>
                           <TableCell align="left">{email}</TableCell>
 
                           <TableCell align="left">
                             <TableCell align="left">
                               <Label
                                 color={
-                                  (userName.userrole.description === "banned" && "error") || "success"
+                                  (userName.userrole.description === "banned" &&
+                                    "error") ||
+                                  "success"
                                 }
                               >
                                 {sentenceCase(userName.userrole.description)}
@@ -319,9 +366,7 @@ export default function AdminPage() {
                             <Button
                               size="large"
                               color="inherit"
-                              onClick={(event) =>
-                                handleOpenMenu(event, admin)
-                              }
+                              onClick={(event) => handleOpenMenu(event, admin)}
                             >
                               <Iconify icon={"eva:edit-fill"} />
                             </Button>
@@ -399,17 +444,12 @@ export default function AdminPage() {
           Delete
         </MenuItem>
       </Popover>
-
-      {/* <AddProductModal
-        open={openAddProduct}
-        onClose={handleCloseAddProduct}
-        onAddProduct={handleAddProduct}
+      <AddAdminModal
+        open={openAddAdmin}
+        handleClose={handleCloseAddAdmin}
+        handleAddAdmin={handleAddAdmin}
+        isLoading={isLoading}
       />
-      <EditProductModal
-        open={openEditPopup}
-        onClose={handleCloseMenu}
-        product={editProduct}
-      /> */}
     </>
   );
 }
