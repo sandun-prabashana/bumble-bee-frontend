@@ -28,8 +28,8 @@ import {
 import Label from "../../components/label";
 import Iconify from "../../components/iconify";
 import Scrollbar from "../../components/scrollbar";
-// import AddProductModal from "./AddProductModal";
-// import EditProductModal from "./EditProductModal";
+import EditCustomerDialog from './EditCustomerDialog';
+
 import { UserListHead, UserListToolbar } from "../../sections/@dashboard/user";
 
 
@@ -123,40 +123,7 @@ export default function CustomerPage() {
     setOpenAddCustomer(false);
   };
 
-  // const handleAddAdmin = (newAdmin) => {
-  //   const token = sessionStorage.getItem("token");
-  //   const config = {
-  //     headers: { Authorization: `Bearer ${token}` },
-  //   };
-  //   console.log(newProduct);
 
-  //   console.log(newProduct.productName);
-  //   console.log(newProduct.productDescription);
-  //   console.log(newProduct.price);
-  //   console.log(newProduct.category);
-  //   console.log(newProduct.brand);
-  //   console.log(newProduct.quantity);
-  //   const productDTO = {
-  //     productName: newProduct.productName,
-  //     productDescription: newProduct.productDescription,
-  //     price: newProduct.price,
-  //     category: {
-  //       categoryId: newProduct.category
-  //     },
-  //     brand: {
-  //       brandId: newProduct.brand
-  //     },
-  //     quantity: newProduct.quantity,
-  //   };
-  //   axios
-  //     .post("http://localhost:8080/BB/api/v1/product", productDTO, config)
-  //     .then((response) => {
-  //       const product = response.data.data;
-  //       setProductData([...productData, product]);
-  //       setOpenAddProduct(false);
-  //     })
-  //     .catch((error) => console.error(error));
-  // };
 
   useEffect(() => {
     const token = sessionStorage.getItem("token");
@@ -404,17 +371,18 @@ export default function CustomerPage() {
           Delete
         </MenuItem>
       </Popover>
-
-      {/* <AddProductModal
+{/* 
+      <AddProductModal
         open={openAddProduct}
         onClose={handleCloseAddProduct}
         onAddProduct={handleAddProduct}
-      />
-      <EditProductModal
-        open={openEditPopup}
-        onClose={handleCloseMenu}
-        product={editProduct}
       /> */}
+<EditCustomerDialog
+  open={openEditPopup}
+  onClose={handleCloseMenu}
+  customer={editCustomer}
+/>
+
     </>
   );
 }

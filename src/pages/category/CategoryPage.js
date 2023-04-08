@@ -30,6 +30,7 @@ import Iconify from "../../components/iconify";
 import Scrollbar from "../../components/scrollbar";
 import AddCategoryModal from "./AddCategoryModal";
 import EditCategoryModal from "./EditCategoryModal";
+import Swal from "sweetalert2";
 // sections
 import { UserListHead, UserListToolbar } from "../../sections/@dashboard/user";
 
@@ -133,8 +134,22 @@ export default function CategoryPage() {
         const category = response.data.data;
         setCategoryData([...categoryData, category]);
         setOpenAddCategory(false);
+        Swal.fire({
+          icon: "success",
+          title: "Create Success",
+          text: newCategory.categoryName+" "+"Category Create Success",
+        });
       })
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        console.error(error);
+        const errorMessage =
+          error.response && error.response.data && error.response.data.data;
+        Swal.fire({
+          icon: "error",
+          title: "Create Failed",
+          text: errorMessage || "Category Create Failed",
+        });
+      });
   };
 
   useEffect(() => {

@@ -4,7 +4,7 @@ import { sentenceCase } from "change-case";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { Link } from "react-router-dom";
+import EditAdminDialog from "./EditAdminDialog";
 // @mui
 import {
   Card,
@@ -44,6 +44,7 @@ const TABLE_HEAD = [
   { id: "phonenumber", label: "Phone_Number", alignRight: false },
   { id: "email", label: "Email", alignRight: false },
   { id: "role", label: "Role", alignRight: false },
+  { id: "" },
   { id: "" },
 ];
 
@@ -243,6 +244,76 @@ export default function AdminPage() {
     }
     setSelected(newSelected);
   };
+  // const handleDeleteAdmin = (adminId) => {
+  //   const token = sessionStorage.getItem("token");
+  //   const config = {
+  //     headers: { Authorization: `Bearer ${token}` },
+  //   };
+  
+  //   axios
+  //     .delete(`http://localhost:8080/BB/api/v1/admin/${adminId}`, config)
+  //     .then(() => {
+  //       setAdminData((prevAdminData) =>
+  //         prevAdminData.filter((admin) => admin.adminId !== adminId)
+  //       );
+  //       Swal.fire({
+  //         icon: "success",
+  //         title: "Delete Success",
+  //         text: "Admin Deleted Successfully",
+  //       });
+  //     })
+  //     .catch((error) => {
+  //       console.error(error);
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: "Delete Failed",
+  //         text: "Admin Deletion Failed",
+  //       });
+  //     });
+  // };
+
+  const handleDeleteAdmin = (adminId) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setIsLoading(true);
+        const token = sessionStorage.getItem("token");
+        const config = {
+          headers: { Authorization: `Bearer ${token}` },
+        };
+        axios
+          .delete(`http://localhost:8080/BB/api/v1/admin/${adminId}`, config)
+          .then(() => {
+            setAdminData(adminData.filter((admin) => admin.adminId !== adminId));
+            setSelected([]);
+            Swal.fire({
+              icon: "success",
+              title: "Success",
+              text: "Admin deleted successfully",
+            });
+          })
+          .catch((error) => {
+            console.error(error);
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "An error occurred while deleting the admin",
+            });
+          })
+          .finally(() => {
+            setIsLoading(false);
+          });
+      }
+    });
+  };
+  
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -371,6 +442,15 @@ export default function AdminPage() {
                               <Iconify icon={"eva:edit-fill"} />
                             </Button>
                           </TableCell>
+                          <TableCell align="right">
+                            <Button
+                              size="large"
+                              color="inherit"
+                              onClick={() => handleDeleteAdmin(admin.adminId)}
+                            >
+                              <Iconify icon={"eva:trash-2-outline"} />
+                            </Button>
+                          </TableCell>
                         </TableRow>
                       );
                     })}
@@ -449,6 +529,11 @@ export default function AdminPage() {
         handleClose={handleCloseAddAdmin}
         handleAddAdmin={handleAddAdmin}
         isLoading={isLoading}
+      />
+      <EditAdminDialog
+        open={openEditPopup}
+        onClose={handleCloseMenu}
+        admin={editAdmin}
       />
     </>
   );

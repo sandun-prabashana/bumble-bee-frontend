@@ -272,9 +272,7 @@ export default function RegisterForm() {
           justifyContent="space-between"
           sx={{ my: 2 }}
         >
-          <Link variant="subtitle2" underline="hover">
-            Forgot password?
-          </Link>
+
         </Stack>
 
         <LoadingButton

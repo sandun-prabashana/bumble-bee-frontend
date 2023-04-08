@@ -1,74 +1,92 @@
-import React, { useState } from "react";
 import {
-  Button,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   TextField,
+  Button,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import axios from "axios";
+import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 
-export default function EditCategoryModal({ open, onClose, category, categoryData, setCategoryData }) {
-  const [categoryName, setCategoryName] = useState(
-    category ? category.categoryName : ""
-  );
+const EditCategoryModal = ({ open, onClose, category }) => {
+  const [formData, setFormData] = useState({});
 
-  const handleCategoryNameChange = (event) => {
-    setCategoryName(event.target.value);
+  useEffect(() => {
+    if (category) {
+      setFormData(category);
+    }
+  }, [category]);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const token = sessionStorage.getItem("token");
     const config = {
       headers: { Authorization: `Bearer ${token}` },
     };
+    console.log(formData);
+    const categoryDTO = {
+      categoryName: formData.categoryName,
+    };
 
-    const updatedCategory = { ...category, categoryName };
     axios
       .put(
-        `http://localhost:8080/BB/api/v1/category/${category.categoryId}`,
-        updatedCategory,
+        `http://localhost:8080/BB/api/v1/category/${formData.categoryId}`,
+        categoryDTO,
         config
       )
       .then((response) => {
-        const updatedCategory = response.data.data;
-        setCategoryName("")
-        onClose();
-        const index = categoryData.findIndex(
-          (category) => category.categoryId === updatedCategory.categoryId
-        );
-        if (index >= 0) {
-          const newCategoryData = [...categoryData];
-          newCategoryData[index] = updatedCategory;
-          setCategoryData(newCategoryData);
-        }
+        Swal.fire({
+          icon: "success",
+          title: "Update Success",
+          text: "Category Update Success",
+        });
         onClose();
       })
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        console.error(error);
+        const errorMessage =
+          error.response && error.response.data && error.response.data.data;
+        Swal.fire({
+          icon: "error",
+          title: "Update Failed",
+          text: errorMessage || "Category Update Failed",
+        });
+      });
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Edit Category</DialogTitle>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>Category Brand</DialogTitle>
       <DialogContent>
-        <TextField
-          autoFocus
-          margin="dense"
-          id="categoryName"
+      <TextField
           label="Category Name"
-          type="text"
+          name="categoryName"
+          value={formData.categoryName || ''}
+          onChange={handleChange}
           fullWidth
-          value={categoryName}
-          onChange={handleCategoryNameChange}
+          margin="normal"
         />
+       
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSave} variant="contained" color="primary">
+        <Button onClick={onClose} color="primary">
+          Cancel
+        </Button>
+        <Button onClick={handleSave} color="primary">
           Save
         </Button>
       </DialogActions>
     </Dialog>
   );
-}
+};
+
+export default EditCategoryModal;
