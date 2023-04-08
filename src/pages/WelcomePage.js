@@ -70,7 +70,8 @@ function WelcomePage() {
     fontSize: "1.2rem",
     lineHeight: "1.5",
     marginTop: "-40px",
-    animation: "loop 5s infinite",
+    color: "#fff",
+    textShadow: "1px 1px 2px #000",
   };
 
   const keyframes = `
@@ -145,3 +146,4 @@ function WelcomePage() {
 }
 
 export default WelcomePage;
+

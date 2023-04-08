@@ -4,6 +4,7 @@ import { sentenceCase } from "change-case";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 // @mui
 import {
   Card,
@@ -147,7 +148,7 @@ export default function ProductPage() {
       brand: {
         brandId: newProduct.brand
       },
-      quantity: newProduct.quantity,
+      quantity: parseInt(newProduct.quantity),
     };
     axios
       .post("http://localhost:8080/BB/api/v1/product", productDTO, config)
@@ -155,8 +156,22 @@ export default function ProductPage() {
         const product = response.data.data;
         setProductData([...productData, product]);
         setOpenAddProduct(false);
+        Swal.fire({
+          icon: "success",
+          title: "Create Success",
+          text: newProduct.productName+" "+"Product Create Success",
+        });
       })
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        console.error(error);
+        const errorMessage =
+          error.response && error.response.data && error.response.data.data;
+        Swal.fire({
+          icon: "error",
+          title: "Create Failed",
+          text: errorMessage || "Product Create Failed",
+        });
+      });
   };
 
   useEffect(() => {

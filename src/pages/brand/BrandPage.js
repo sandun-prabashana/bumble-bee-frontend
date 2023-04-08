@@ -4,6 +4,7 @@ import { sentenceCase } from "change-case";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 // @mui
 import {
   Card,
@@ -78,6 +79,8 @@ function applySortFilter(array, comparator, query) {
 }
 
 export default function BrandPage() {
+  const [isLoading, setIsLoading] = useState(false);
+
   const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -119,14 +122,15 @@ export default function BrandPage() {
   };
 
   const handleAddBrand = (newBrand) => {
+    setIsLoading(true);
     const token = sessionStorage.getItem("token");
     const config = {
       headers: { Authorization: `Bearer ${token}` },
     };
     console.log(newBrand);
     const brandDTO = {
-      brandName: newBrand.brandName, // stringify the newCategory parameter
-      status: "ACT", // set default status to "active"
+      brandName: newBrand.brandName, 
+      status: "ACT", 
     };
     axios
       .post("http://localhost:8080/BB/api/v1/brand", brandDTO, config)
@@ -134,8 +138,25 @@ export default function BrandPage() {
         const brand = response.data.data;
         setBrandData([...brandData, brand]);
         setOpenAddBrand(false);
+        Swal.fire({
+          icon: "success",
+          title: "Create Success",
+          text: newBrand.brandName+" "+"Brand Create Success",
+        });
       })
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        console.error(error);
+        const errorMessage =
+          error.response && error.response.data && error.response.data.data;
+        Swal.fire({
+          icon: "error",
+          title: "Create Failed",
+          text: errorMessage || "Brand Create Failed",
+        });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   useEffect(() => {

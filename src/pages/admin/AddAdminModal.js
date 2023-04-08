@@ -43,7 +43,7 @@ export default function AddAdminModal({ open, handleClose, handleAddAdmin, isLoa
           value={adminDetails.userName}
           onChange={handleChange}
         />
-        <TextField
+        {/* <TextField
           margin="dense"
           name="password"
           label="Password"
@@ -51,7 +51,7 @@ export default function AddAdminModal({ open, handleClose, handleAddAdmin, isLoa
           variant="outlined"
           value={adminDetails.password}
           onChange={handleChange}
-        />
+        /> */}
         <TextField
           margin="dense"
           name="firstName"
